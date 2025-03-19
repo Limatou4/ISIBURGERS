@@ -2,48 +2,28 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'halimatou/halimatou_batoure:latest'
-        GIT_BRANCH = 'Halimatou_Batoure' 
-        GIT_REPO = 'https://github.com/Limatou4/ISIBURGERS.git' 
+        COMPOSER_ALLOW_SUPERUSER = "1"  // Pour éviter les erreurs avec Composer
     }
 
     stages {
-        stage('Checkout') {
+        stage('Pull du code depuis GitHub') {
+            steps {
+                git branch: 'Halimatou_Batoure', url: 'https://github.com/Limatou4/ISIBURGERS.git'
+            }
+        }
+
+        stage('Installation des dépendances Laravel') {
             steps {
                 script {
-                  
-                    git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
+                    sh 'composer install --no-dev --prefer-dist'
                 }
             }
         }
 
-        stage('Installer les dépendances Laravel') {
+        stage('Création de l’image Docker') {
             steps {
                 script {
-                   
-                    sh 'curl -sS https://getcomposer.org/installer | php'
-                    sh 'php composer.phar install'
-                }
-            }
-        }
-
-        stage('Construire l\'image Docker') {
-            steps {
-                script {
-                   
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
-                }
-            }
-        }
-
-        stage('Pousser l\'image Docker vers Docker Hub') {
-            steps {
-                script {
-                   
-                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-
-                 
-                    sh 'docker push ${DOCKER_IMAGE}'
+                    sh 'docker build -t isiburgers:latest .'
                 }
             }
         }
@@ -51,10 +31,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline exécuté avec succès 🎉'
+            echo "🚀 Déploiement réussi !"
         }
         failure {
-            echo 'Le pipeline a échoué ❌'
+            echo "❌ Erreur lors du déploiement !"
         }
     }
 }
