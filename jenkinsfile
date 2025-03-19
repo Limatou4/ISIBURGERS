@@ -29,12 +29,5 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            echo "🚀 Déploiement réussi !"
-        }
-        failure {
-            echo "❌ Erreur lors du déploiement !"
-        }
-    }
+    
 }
