@@ -1,33 +1,20 @@
 pipeline {
     agent any
 
-    environment {
-        COMPOSER_ALLOW_SUPERUSER = "1"  // Pour éviter les erreurs avec Composer
-    }
-
     stages {
-        stage('Pull du code depuis GitHub') {
+        stage('Cloner le code') {
             steps {
                 git branch: 'Halimatou_Batoure', url: 'https://github.com/Limatou4/ISIBURGERS.git'
             }
         }
-
-        stage('Installation des dépendances Laravel') {
-            steps {
-                script {
-                    sh 'composer install --no-dev --prefer-dist'
-                }
-            }
-        }
-
-        stage('Création de l’image Docker') {
-            steps {
-                script {
-                    sh 'docker build -t isiburgers:latest .'
-                }
-            }
-        }
     }
 
-    
+    post {
+        success {
+            echo '🎉 Clonage réussi !'
+        }
+        failure {
+            echo '⚠️ Erreur lors du clonage, vérifiez les logs.'
+        }
+    }
 }
